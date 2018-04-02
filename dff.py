@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-version="0.0.1"
+version="0.0.2"
 
 import sys, argparse, math, hashlib, os
 
@@ -51,11 +51,21 @@ def dff(path):
     verbose('Started searching in ' + path)
 
     snip = dict()
+    full = dict()
     for file_name in os.listdir(path):
         verbose('Processing file ' + file_name)
         current_file_snip_hash = md5_snip(path + '/' + file_name)
         if (current_file_snip_hash in snip):
-            output(path + '/' + file_name + ' is a duplicate of ' + snip[current_file_snip_hash])
+
+            # Put the snip file in the full dictionary also
+            current_file_full_hash = md5_full(path + '/' + file_name)
+            snip_file_full_hash = md5_full(snip[current_file_snip_hash])
+            full[snip_file_full_hash] = snip[current_file_snip_hash]
+
+            if (current_file_full_hash in full):
+                output(path + '/' + file_name + ' is a duplicate of ' + snip[current_file_snip_hash])
+            else:
+                verbose('...first 4096 bytes are the same, but files are different')
         else:
             snip[current_file_snip_hash] = path + '/' + file_name
 
