@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
-version="0.0.3"
+version="0.0.4"
 
 import sys, argparse, math, hashlib, os
 
 stdout = ''
 verbose_output = None
 output_immediately = None
+megabytes_scanned = 0
+
+BYTES_IN_A_MEGABYTE = 1048576
+BYTES_TO_SCAN = 4096
+SCAN_SIZE_MB = BYTES_TO_SCAN / BYTES_IN_A_MEGABYTE
 
 def clear_stdout():
     global stdout
@@ -20,20 +25,24 @@ def set_output_immediately(o):
     output_immediately = o
 
 def md5_full(file_path):
+    global megabytes_scanned
     verbose('...calculating md5 full of ' + file_path)
     hash_md5 = hashlib.md5()
     with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
+        for chunk in iter(lambda: f.read(BYTES_TO_SCAN), b""):
             hash_md5.update(chunk)
+            megabytes_scanned += SCAN_SIZE_MB
     return hash_md5.hexdigest()
 
 def md5_snip(file_path):
+    global megabytes_scanned
     verbose('...calculating md5 snippet of ' + file_path)
     hash_md5 = hashlib.md5()
     with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
+        for chunk in iter(lambda: f.read(BYTES_TO_SCAN), b""):
             hash_md5.update(chunk)
             f.close()
+            megabytes_scanned += SCAN_SIZE_MB
             return hash_md5.hexdigest()
 
 def verbose(out):
@@ -54,6 +63,8 @@ def dff(path):
     snip = dict()
     full = dict()
 
+    duplicate_count = 0
+
     for root, dirs, files in os.walk(path):
         files.sort()
         for file_name in files:
@@ -69,10 +80,13 @@ def dff(path):
 
                 if (current_file_full_hash in full):
                     output(file_relative_path + ' is a duplicate of ' + snip[current_file_snip_hash])
+                    duplicate_count += 1
                 else:
                     verbose('...first 4096 bytes are the same, but files are different')
             else:
                 snip[current_file_snip_hash] = file_relative_path
+
+    output('\n' + str(duplicate_count) + ' duplicate files found, ' + str(megabytes_scanned) + ' megabytes scanned')
 
     return stdout
 
@@ -89,7 +103,7 @@ set_output_immediately(not args.output_delayed)
 clear_stdout()
 
 if (args.path):
-    print('Finding duplicate files at', args.path, '\n')
+    print('\nFinding duplicate files at', args.path, '\n')
     dff(args.path)
     if (not output_immediately):
         print('\nResults...\n')

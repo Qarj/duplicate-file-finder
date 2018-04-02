@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-version="0.0.3"
+version="0.0.4"
 
 import unittest
 from dff import dff, clear_stdout, set_verbose_output, set_output_immediately
@@ -70,6 +70,14 @@ class Testdff(unittest.TestCase):
         self.assertRegex (response, 'sub1.dupe.txt is a duplicate of test.duplicate_across_folders.master.txt')
         self.assertRegex (response, 'sub1.supersub.also_dupe.txt is a duplicate of test.duplicate_across_folders.master.txt')
         self.assertRegex (response, 'sub2.dupe.txt is a duplicate of test.duplicate_across_folders.master.txt')
+
+    def test_show_count_of_duplicates(self):
+        response = dff('test/duplicate_across_folders')
+        self.assertRegex (response, '3 duplicate files found')
+
+    def test_show_megabytes_scanned(self):
+        response = dff('test/duplicate_across_folders')
+        self.assertRegex (response, '0.0625 megabytes scanned')
 
 if __name__ == '__main__':
     one_time_setup()
