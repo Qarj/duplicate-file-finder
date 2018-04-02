@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-version="0.0.2"
+version="0.0.3"
 
 import sys, argparse, math, hashlib, os
 
@@ -20,6 +20,7 @@ def set_output_immediately(o):
     output_immediately = o
 
 def md5_full(file_path):
+    verbose('...calculating md5 full of ' + file_path)
     hash_md5 = hashlib.md5()
     with open(file_path, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
@@ -52,22 +53,26 @@ def dff(path):
 
     snip = dict()
     full = dict()
-    for file_name in os.listdir(path):
-        verbose('Processing file ' + file_name)
-        current_file_snip_hash = md5_snip(path + '/' + file_name)
-        if (current_file_snip_hash in snip):
 
-            # Put the snip file in the full dictionary also
-            current_file_full_hash = md5_full(path + '/' + file_name)
-            snip_file_full_hash = md5_full(snip[current_file_snip_hash])
-            full[snip_file_full_hash] = snip[current_file_snip_hash]
+    for root, dirs, files in os.walk(path):
+        files.sort()
+        for file_name in files:
+            file_relative_path = os.path.join(root,file_name)
+            verbose('Processing file ' + file_relative_path)
+            current_file_snip_hash = md5_snip(file_relative_path)
+            if (current_file_snip_hash in snip):
 
-            if (current_file_full_hash in full):
-                output(path + '/' + file_name + ' is a duplicate of ' + snip[current_file_snip_hash])
+                # Put the snip file in the full dictionary also
+                current_file_full_hash = md5_full(file_relative_path)
+                snip_file_full_hash = md5_full(snip[current_file_snip_hash])
+                full[snip_file_full_hash] = snip[current_file_snip_hash]
+
+                if (current_file_full_hash in full):
+                    output(file_relative_path + ' is a duplicate of ' + snip[current_file_snip_hash])
+                else:
+                    verbose('...first 4096 bytes are the same, but files are different')
             else:
-                verbose('...first 4096 bytes are the same, but files are different')
-        else:
-            snip[current_file_snip_hash] = path + '/' + file_name
+                snip[current_file_snip_hash] = file_relative_path
 
     return stdout
 
@@ -84,7 +89,7 @@ set_output_immediately(not args.output_delayed)
 clear_stdout()
 
 if (args.path):
-    print('Finding duplicate files at', args.path)
+    print('Finding duplicate files at', args.path, '\n')
     dff(args.path)
     if (not output_immediately):
         print('\nResults...\n')
