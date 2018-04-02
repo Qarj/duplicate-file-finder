@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-version="0.0.4"
+version="0.0.5"
 
 import unittest
-from dff import dff, clear_stdout, set_verbose_output, set_output_immediately
+from dff import dff, clear_globals_for_unittests, set_verbose_output, set_output_immediately, set_trial_delete
 
 # self.assertTrue(exp)
 # self.assertEqual(a,b)
@@ -13,11 +13,12 @@ from dff import dff, clear_stdout, set_verbose_output, set_output_immediately
 def one_time_setup():
     set_verbose_output(True)
     set_output_immediately(False)
+    set_trial_delete(True)
 
 class Testdff(unittest.TestCase):
 
     def setUp(self):
-        clear_stdout()
+        clear_globals_for_unittests()
         pass
        
     def tearDown(self):
@@ -78,6 +79,12 @@ class Testdff(unittest.TestCase):
     def test_show_megabytes_scanned(self):
         response = dff('test/duplicate_across_folders')
         self.assertRegex (response, '0.0625 megabytes scanned')
+
+    def test_delete_duplicates_trial(self):
+        response = dff('test/duplicate_across_folders', True)
+        self.assertRegex (response, 'deleted ... test.duplicate_across_folders.sub1.dupe.txt')
+        self.assertRegex (response, 'deleted ... test.duplicate_across_folders.sub1.supersub.also_dupe.txt')
+        self.assertRegex (response, 'deleted ... test.duplicate_across_folders.sub2.dupe.txt')
 
 if __name__ == '__main__':
     one_time_setup()
