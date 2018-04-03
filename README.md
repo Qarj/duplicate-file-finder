@@ -31,6 +31,3 @@ dff --path test/duplicate_across_folders --delete
 test_dff
 ```
 
-## Limitations
-
-* If a permission denied (or locked) file is encountered, the script is aborted (will be fixed)

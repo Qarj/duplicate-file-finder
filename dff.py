@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-version="0.0.7"
+version="0.1.0"
 
 import sys, argparse, math, hashlib, os, stat
 
@@ -49,12 +49,16 @@ def md5_snip(file_path):
     global megabytes_scanned
     verbose('...calculating md5 snippet of ' + file_path)
     hash_md5 = hashlib.md5()
-    with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(BYTES_TO_SCAN), b""):
-            hash_md5.update(chunk)
-            f.close()
-            megabytes_scanned += SCAN_SIZE_MB
-            return hash_md5.hexdigest()
+    try:
+        with open(file_path, "rb") as f:
+            for chunk in iter(lambda: f.read(BYTES_TO_SCAN), b""):
+                hash_md5.update(chunk)
+                f.close()
+                megabytes_scanned += SCAN_SIZE_MB
+                return hash_md5.hexdigest()
+    except PermissionError:
+        output ('PermissionError: '+file_path+'\n')
+        return 'PermissionError:'+file_path
 
 def verbose(out):
     if (verbose_output):
@@ -64,16 +68,15 @@ def verbose(out):
 def output(out):
     global stdout
     if (output_immediately):
-        print(out, flush=True)
+        try:
+            print(out, flush=True)
+        except UnicodeEncodeError:
+            try:
+                print(out.encode('utf8').decode(sys.stdout.encoding))
+            except UnicodeDecodeError:
+                print('Sorry Unicode error...')
     else:
         stdout += out + "\n"
-
-def output_without_newline(out):
-    global stdout
-    if (output_immediately):
-        print(out, end='', flush=True)
-    else:
-        stdout += out
 
 def dff(path, delete=False):
     verbose('Started searching in ' + path)
@@ -96,10 +99,7 @@ def dff(path, delete=False):
                 # Put the snip file in the full dictionary also
                 current_file_full_hash = md5_full(file_relative_path)
                 snip_file_full_hash = md5_full(snip[current_file_snip_hash])
-                #verbose(current_file_full_hash + ' ||| ' + snip_file_full_hash)
-
                 full[snip_file_full_hash] = snip[current_file_snip_hash]
-                #verbose('snip[current_file_snip_hash] ' + snip[current_file_snip_hash])
 
                 if (current_file_full_hash in full):
                     if (delete):
@@ -164,5 +164,8 @@ if (args.path):
     dff(args.path, args.delete)
     if (not output_immediately):
         print('\nResults...\n')
-        print(stdout)
+        try:
+            print(stdout)
+        except UnicodeEncodeError:
+            print(stdout.encode('utf8').decode(sys.stdout.encoding))
     sys.exit()

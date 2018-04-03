@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-version="0.0.7"
+version="0.1.0"
 
-import unittest, shutil, os
+import unittest, shutil, os, stat
 from stat import S_IREAD, S_IRGRP, S_IROTH
 from dff import dff, clear_globals_for_unittests, set_verbose_output, set_output_immediately, set_trial_delete
 
@@ -100,10 +100,12 @@ class Testdff(unittest.TestCase):
         set_trial_delete(True)
         self.assertRegex (response, 'deleted ... test.delete_unit_test.bbb.txt')
 
+#ToDo:
+#  * output start and end time
+#  * optimisation - full file already
 
-# ToDo
-#   skip read permission error files for snip - instead of aborting, return 'md5snip permission denied_' + rnd_string(20 characters) [Should not be possible to get to md5full]
-#   get to the bottom of whether it is really comparing a file with itself
+# %time% in the following is evaluated at submit
+# echo %time% > g:\down\d.txt & dff --path d:\ >> g:\down\d.txt & echo %time% >> g:\down\d.txt
 
 if __name__ == '__main__':
     one_time_setup()
