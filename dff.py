@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-version="0.0.6"
+version="0.0.7"
 
-import sys, argparse, math, hashlib, os
+import sys, argparse, math, hashlib, os, stat
 
 # Flags
 verbose_output = None
@@ -105,6 +105,7 @@ def dff(path, delete=False):
                     if (delete):
                         delete_message = 'deleted ... '
                         if (not trial_delete):
+                            os.chmod(file_relative_path, stat.S_IWRITE)
                             os.remove(file_relative_path)
                     else:
                         delete_message = '            '

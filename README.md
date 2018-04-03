@@ -20,7 +20,7 @@ Pretend to delete dupes:
 dff --path test/duplicate_across_folders --delete --trial
 ```
 
-Really delete them - carefull !!!:
+Really delete them - carefull !!! - deletes read only files too:
 ```
 dff --path test/duplicate_across_folders --delete
 ```
@@ -34,4 +34,3 @@ test_dff
 ## Limitations
 
 * If a permission denied (or locked) file is encountered, the script is aborted (will be fixed)
-* If a read only duplicate file is encountered with --delete option, script will abort (will be fixed)

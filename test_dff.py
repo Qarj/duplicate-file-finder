@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-version="0.0.6"
+version="0.0.7"
 
-import unittest
+import unittest, shutil, os
+from stat import S_IREAD, S_IRGRP, S_IROTH
 from dff import dff, clear_globals_for_unittests, set_verbose_output, set_output_immediately, set_trial_delete
 
 # self.assertTrue(exp)
@@ -90,8 +91,17 @@ class Testdff(unittest.TestCase):
         response = dff('test/duplicate_across_folders')
         self.assertRegex (response, '4 files and')
 
+    def test_delete_read_only_file(self):
+        shutil.rmtree('test/delete_unit_test', ignore_errors=True)
+        shutil.copytree('test/one_small_duplicate', 'test/delete_unit_test')
+        os.chmod('test/delete_unit_test/bbb.txt', S_IREAD|S_IRGRP|S_IROTH)
+        set_trial_delete(False)
+        response = dff('test/delete_unit_test', True)
+        set_trial_delete(True)
+        self.assertRegex (response, 'deleted ... test.delete_unit_test.bbb.txt')
+
+
 # ToDo
-#   delete read-only files
 #   skip read permission error files for snip - instead of aborting, return 'md5snip permission denied_' + rnd_string(20 characters) [Should not be possible to get to md5full]
 #   get to the bottom of whether it is really comparing a file with itself
 
