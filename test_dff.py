@@ -110,6 +110,7 @@ class Testdff(unittest.TestCase):
 
 #ToDo:
 #  * optimisation - full file already
+#  * probably a logic error - where the first 4096 bytes of the files are identical but we don't find duplicate since we compare against the wrong snip file...
 
 # %time% in the following is evaluated at submit
 # echo %time% > g:\down\d.txt & dff --path d:\ >> g:\down\d.txt & echo %time% >> g:\down\d.txt

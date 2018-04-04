@@ -35,15 +35,35 @@ def set_trial_delete(b):
     global trial_delete
     trial_delete = b
 
-def md5_full(file_path):
-    global megabytes_scanned
-    verbose('...calculating md5 full of ' + file_path)
-    hash_md5 = hashlib.md5()
-    with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(BYTES_TO_SCAN), b""):
-            hash_md5.update(chunk)
-            megabytes_scanned += SCAN_SIZE_MB
-    return hash_md5.hexdigest()
+class fileFullHash:
+
+    full = dict()
+
+    def file_hash_content_identical(self, snip_file_path, current_file_path):
+        current_file_hash = self.md5_full(current_file_path)
+        if (current_file_hash in self.full):
+            if (self.full[current_file_hash] == snip_file_path):
+                return True
+
+        snip_file_hash = self.md5_full(snip_file_path)
+        self.full[snip_file_hash] = snip_file_path
+        if (current_file_hash in self.full):
+            if (self.full[current_file_hash] == snip_file_path):
+                return True
+
+        self.full[current_file_hash] = current_file_path
+        return False
+                
+    
+    def md5_full(self, file_path):
+        global megabytes_scanned
+        verbose('...calculating md5 full of ' + file_path)
+        hash_md5 = hashlib.md5()
+        with open(file_path, "rb") as f:
+            for chunk in iter(lambda: f.read(BYTES_TO_SCAN), b""):
+                hash_md5.update(chunk)
+                megabytes_scanned += SCAN_SIZE_MB
+        return hash_md5.hexdigest()
 
 def md5_snip(file_path):
     global megabytes_scanned
@@ -85,6 +105,8 @@ def dff(path, delete=False):
     snip = dict()
     full = dict()
 
+    full_hash = fileFullHash()
+
     duplicate_count = 0
     file_count = 0
 
@@ -98,11 +120,12 @@ def dff(path, delete=False):
             if (current_file_snip_hash in snip):
 
                 # Put the snip file in the full dictionary also
-                current_file_full_hash = md5_full(file_relative_path)
-                snip_file_full_hash = md5_full(snip[current_file_snip_hash])
-                full[snip_file_full_hash] = snip[current_file_snip_hash]
+ #               current_file_full_hash = full_hash.md5_full(file_relative_path)
+ #               snip_file_full_hash = full_hash.md5_full(snip[current_file_snip_hash])
+ #               full[snip_file_full_hash] = snip[current_file_snip_hash]
 
-                if (current_file_full_hash in full):
+ #               if (current_file_full_hash in full):
+                if (full_hash.file_hash_content_identical(snip[current_file_snip_hash], file_relative_path)):
                     if (delete):
                         delete_message = 'deleted ... '
                         if (not trial_delete):
