@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-version="0.1.0"
+version="0.2.0"
 
 import unittest, shutil, os, stat
 from stat import S_IREAD, S_IRGRP, S_IROTH
@@ -27,7 +27,7 @@ class Testdff(unittest.TestCase):
 
     def test_verbose_output_enabled(self):
         response = dff('test/one_file')
-        self.assertRegex (response, 'Started searching in')
+        self.assertRegex (response, 'Processing file')
 
     def test_find_small_file_duplicate(self):
         response = dff('test/one_small_duplicate')
@@ -100,8 +100,15 @@ class Testdff(unittest.TestCase):
         set_trial_delete(True)
         self.assertRegex (response, 'deleted ... test.delete_unit_test.bbb.txt')
 
+    def test_show_start_and_end_times(self):
+        response = dff('test/duplicate_across_folders')
+        self.assertRegex (response, '\d{2}:\d{2}:\d{2}')
+
+    def test_show_run_time_in_seconds(self):
+        response = dff('test/duplicate_across_folders')
+        self.assertRegex (response, 'in \d+\.\d+ seconds')
+
 #ToDo:
-#  * output start and end time
 #  * optimisation - full file already
 
 # %time% in the following is evaluated at submit

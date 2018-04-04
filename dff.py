@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-version="0.1.0"
+version="0.2.0"
 
-import sys, argparse, math, hashlib, os, stat
+import sys, argparse, math, hashlib, os, stat, time
 
 # Flags
 verbose_output = None
@@ -79,7 +79,8 @@ def output(out):
         stdout += out + "\n"
 
 def dff(path, delete=False):
-    verbose('Started searching in ' + path)
+    output('\n' + time.strftime('%X : ') +  'Finding duplicate files at ' + path + '\n')
+    start_time = time.time()
 
     snip = dict()
     full = dict()
@@ -118,7 +119,7 @@ def dff(path, delete=False):
             else:
                 snip[current_file_snip_hash] = file_relative_path
 
-    output('\n' + str(duplicate_count) + ' duplicate files found, ' + str(file_count) + ' files and ' + str(megabytes_scanned) + ' megabytes scanned')
+    output('\n' + time.strftime('%X : ') + str(duplicate_count) + ' duplicate files found, ' + str(file_count) + ' files and ' + str(megabytes_scanned) + ' megabytes scanned in ' + str(round(time.time()-start_time, 3)) + ' seconds')
 
     return stdout
 
@@ -160,7 +161,6 @@ if (args.walk):
     sys.exit()
 
 if (args.path):
-    print('\nFinding duplicate files at', args.path, '\n')
     dff(args.path, args.delete)
     if (not output_immediately):
         print('\nResults...\n')
