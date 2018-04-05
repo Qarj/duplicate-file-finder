@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-version="0.2.0"
+version="0.3.0"
 
 import sys, argparse, math, hashlib, os, stat, time
 
@@ -39,6 +39,9 @@ class fileFullHash:
 
     full = dict()
 
+    def __init__(self):
+        self.full.clear()
+
     def file_hash_content_identical(self, snip_file_path, current_file_path):
         current_file_hash = self.md5_full(current_file_path)
         if (current_file_hash in self.full):
@@ -50,6 +53,19 @@ class fileFullHash:
         if (current_file_hash in self.full):
             if (self.full[current_file_hash] == snip_file_path):
                 return True
+
+        self.full[current_file_hash] = current_file_path
+        return False
+
+    def search_duplicate(self, snip_file_path, current_file_path):
+        current_file_hash = self.md5_full(current_file_path)
+        if (current_file_hash in self.full):
+            return self.full[current_file_hash]
+
+        snip_file_hash = self.md5_full(snip_file_path)
+        self.full[snip_file_hash] = snip_file_path
+        if (current_file_hash in self.full):
+            return self.full[current_file_hash]
 
         self.full[current_file_hash] = current_file_path
         return False
@@ -125,7 +141,9 @@ def dff(path, delete=False):
  #               full[snip_file_full_hash] = snip[current_file_snip_hash]
 
  #               if (current_file_full_hash in full):
-                if (full_hash.file_hash_content_identical(snip[current_file_snip_hash], file_relative_path)):
+#                if (full_hash.file_hash_content_identical(snip[current_file_snip_hash], file_relative_path)):
+                dupe_file_path = full_hash.search_duplicate(snip[current_file_snip_hash], file_relative_path)
+                if (dupe_file_path):
                     if (delete):
                         delete_message = 'deleted ... '
                         if (not trial_delete):
@@ -133,9 +151,7 @@ def dff(path, delete=False):
                             os.remove(file_relative_path)
                     else:
                         delete_message = '            '
-                    output(delete_message + file_relative_path + '\n is dupe of ' + snip[current_file_snip_hash] + '\n')
-                    if (file_relative_path == snip[current_file_snip_hash]):
-                        output('\n\nCAUTION -- files have same full path -- WTF?!\n\n')
+                    output(delete_message + file_relative_path + '\n is dupe of ' + dupe_file_path + '\n')
                     duplicate_count += 1
                 else:
                     verbose('...first 4096 bytes are the same, but files are different')

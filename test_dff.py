@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-version="0.2.0"
+version="0.3.0"
 
 import unittest, shutil, os, stat
 from stat import S_IREAD, S_IRGRP, S_IROTH
@@ -79,7 +79,7 @@ class Testdff(unittest.TestCase):
 
     def test_show_megabytes_scanned(self):
         response = dff('test/duplicate_across_folders')
-        self.assertRegex (response, '0.0625 megabytes scanned')
+        self.assertRegex (response, '0.046875 megabytes scanned')
 
     def test_delete_duplicates_trial(self):
         response = dff('test/duplicate_across_folders', True)
@@ -92,8 +92,15 @@ class Testdff(unittest.TestCase):
         self.assertRegex (response, '4 files and')
 
     def test_delete_read_only_file(self):
-        shutil.rmtree('test/delete_unit_test', ignore_errors=True)
-        shutil.copytree('test/one_small_duplicate', 'test/delete_unit_test')
+        try:
+            os.chmod('test/delete_unit_test/bbb.txt', stat.S_IWRITE)
+        except FileNotFoundError:
+            pass
+        shutil.rmtree('test/delete_unit_test', ignore_errors=True )
+        try:
+            shutil.copytree('test/one_small_duplicate', 'test/delete_unit_test')
+        except PermissionError:
+            print('Got some really wierd permission error - try again')
         os.chmod('test/delete_unit_test/bbb.txt', S_IREAD|S_IRGRP|S_IROTH)
         set_trial_delete(False)
         response = dff('test/delete_unit_test', True)
