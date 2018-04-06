@@ -42,21 +42,6 @@ class fileFullHash:
     def __init__(self):
         self.full.clear()
 
-    def file_hash_content_identical(self, snip_file_path, current_file_path):
-        current_file_hash = self.md5_full(current_file_path)
-        if (current_file_hash in self.full):
-            if (self.full[current_file_hash] == snip_file_path):
-                return True
-
-        snip_file_hash = self.md5_full(snip_file_path)
-        self.full[snip_file_hash] = snip_file_path
-        if (current_file_hash in self.full):
-            if (self.full[current_file_hash] == snip_file_path):
-                return True
-
-        self.full[current_file_hash] = current_file_path
-        return False
-
     def search_duplicate(self, snip_file_path, current_file_path):
         current_file_hash = self.md5_full(current_file_path)
         if (current_file_hash in self.full):
@@ -119,8 +104,6 @@ def dff(path, delete=False):
     start_time = time.time()
 
     snip = dict()
-    full = dict()
-
     full_hash = fileFullHash()
 
     duplicate_count = 0
@@ -134,14 +117,6 @@ def dff(path, delete=False):
             verbose('Processing file ' + file_relative_path)
             current_file_snip_hash = md5_snip(file_relative_path)
             if (current_file_snip_hash in snip):
-
-                # Put the snip file in the full dictionary also
- #               current_file_full_hash = full_hash.md5_full(file_relative_path)
- #               snip_file_full_hash = full_hash.md5_full(snip[current_file_snip_hash])
- #               full[snip_file_full_hash] = snip[current_file_snip_hash]
-
- #               if (current_file_full_hash in full):
-#                if (full_hash.file_hash_content_identical(snip[current_file_snip_hash], file_relative_path)):
                 dupe_file_path = full_hash.search_duplicate(snip[current_file_snip_hash], file_relative_path)
                 if (dupe_file_path):
                     if (delete):
@@ -162,24 +137,6 @@ def dff(path, delete=False):
 
     return stdout
 
-def walk(path):
-    snip = dict()
-    full = dict()
-
-    file_count = 0
-
-    for root, dirs, files in os.walk(path):
-        files.sort()
-        for file_name in files:
-            file_relative_path = os.path.join(root,file_name)
-            output('File:' + file_relative_path)
-            file_count += 1
-    
-    print (file_count, 'files')
-
-    return stdout
-
-
 parser = argparse.ArgumentParser(description='Find duplicate files in target path and sub folders.')
 parser.add_argument('--path', dest='path', required=False, action='store', help='Target path')
 parser.add_argument('--version', action='version', version=version)
@@ -187,17 +144,11 @@ parser.add_argument('--verbose', action='store_true', dest='verbose', default=Fa
 parser.add_argument('--delayed', action='store_true', dest='output_delayed', default=False, help='Will display stdout at end instead of immediately')
 parser.add_argument('--delete', action='store_true', dest='delete', default=False, help='Deletes any duplicate files found')
 parser.add_argument('--trial', action='store_true', dest='trial_delete', default=False, help='Displays files to delete without actually deleting them - use with --delete')
-parser.add_argument('--walk', action='store_true', dest='walk', default=False, help='Walks the target')
 
 args = parser.parse_args()
 set_verbose_output(args.verbose)
 set_output_immediately(not args.output_delayed)
 set_trial_delete(args.trial_delete)
-
-if (args.walk):
-    print('Walking....')
-    walk(args.path)
-    sys.exit()
 
 if (args.path):
     dff(args.path, args.delete)
