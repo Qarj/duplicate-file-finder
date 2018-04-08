@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-version="0.4.0"
+version="0.5.0"
 
 import unittest, shutil, os, stat
 from stat import S_IREAD, S_IRGRP, S_IROTH
@@ -97,6 +97,8 @@ class Testdff(unittest.TestCase):
             os.chmod('test/delete_unit_test/bbb.txt', stat.S_IWRITE)
         except FileNotFoundError:
             pass
+        shutil.rmtree('test/delete_unit_test', ignore_errors=True ) # Why is this so unreliable ???
+        shutil.rmtree('test/delete_unit_test', ignore_errors=True )
         shutil.rmtree('test/delete_unit_test', ignore_errors=True )
         try:
             shutil.copytree('test/one_small_duplicate', 'test/delete_unit_test')
@@ -119,6 +121,8 @@ class Testdff(unittest.TestCase):
         
     def test_delete_file_with_longest_name(self):
         shutil.rmtree('test/delete_filename_length', ignore_errors=True )
+        shutil.rmtree('test/delete_filename_length', ignore_errors=True )
+        shutil.rmtree('test/delete_filename_length', ignore_errors=True )
         shutil.copytree('test/filename_length', 'test/delete_filename_length')
         set_delete_shorter(True)
         set_trial_delete(False)
@@ -130,7 +134,7 @@ class Testdff(unittest.TestCase):
         self.assertRegex (response, 'aaaaaa.txt ... deleted')
         self.assertRegex (response, 'deleted ... test.delete_filename_length.ee.txt')
         self.assertRegex (response, 'aaaaaa.txt ... already deleted')
-        
+        self.assertRegex (response, 'failed to delete 1 duplicates - rerun script')
 
 
 if __name__ == '__main__':

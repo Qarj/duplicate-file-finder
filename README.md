@@ -1,4 +1,4 @@
-# duplicate-file-finder
+# duplicate-file-finder 0.5.0
 
 Very quickly find files with duplicate content, and optionally delete duplicates.
 
@@ -30,7 +30,7 @@ Delete the file with the shorter file name rather than always the file currently
 dff --path test/duplicate_across_folders --delete --shorter
 ```
 When using this option, some multiple duplicates of a file might be missed. In that case you'll need to run
-the script again.
+the script again. A message at script completion will tell you if this is the case.
 
 
 ## Run the unit tests

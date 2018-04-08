@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-version="0.4.0"
+version="0.5.0"
 
 import sys, argparse, math, hashlib, os, stat, time
 
@@ -12,6 +12,7 @@ delete_shorter = None
 # Globals
 stdout = ''
 megabytes_scanned = 0
+failed_delete_count = 0
 
 # Constants
 BYTES_IN_A_MEGABYTE = 1048576
@@ -133,6 +134,9 @@ def dff(path, delete_duplicates=False):
 
     output('\n' + time.strftime('%X : ') + str(duplicate_count) + ' duplicate files found, ' + str(file_count) + ' files and ' + str(megabytes_scanned) + ' megabytes scanned in ' + str(round(time.time()-start_time, 3)) + ' seconds')
 
+    if (failed_delete_count):
+        output('\n' + 'failed to delete ' + str(failed_delete_count) + ' duplicates - rerun script')
+
     return stdout
 
 def display_duplicate_and_optionally_delete(previously_hashed_file_path, current_file_path, delete_duplicates):
@@ -154,14 +158,16 @@ def delete_duplicate_and_get_message(previously_hashed_file_path, current_file_p
         if ( len(os.path.basename(previously_hashed_file_path)) < len(os.path.basename(current_file_path)) ):
             delete_file_path = previously_hashed_file_path
             previously_hashed_file_message = ' ... deleted'
-            current_file_message = ''
+            current_file_message = '            '
 
     if (not trial_delete):
         try:
             os.chmod(delete_file_path, stat.S_IWRITE)
             os.remove(delete_file_path)
         except FileNotFoundError:
-            previously_hashed_file_message = ' ... already deleted'
+            previously_hashed_file_message = ' ... already deleted' # only the previously hashed file could have been deleted - not the current file (unless user is deleting files outside of this script!)
+            global failed_delete_count
+            failed_delete_count += 1
 
     return previously_hashed_file_message, current_file_message
 
