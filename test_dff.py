@@ -114,13 +114,22 @@ class Testdff(unittest.TestCase):
     def test_show_run_time_in_seconds(self):
         response = dff('test/duplicate_across_folders')
         self.assertRegex (response, 'in \d+\.\d+ seconds')
+        
+    def test_delete_file_with_longest_name(self):
+        shutil.rmtree('test/delete_filename_length', ignore_errors=True )
+        shutil.copytree('test/filename_length', 'test/delete_filename_length')
+        set_delete_shorter(True)
+        set_trial_delete(False)
+        response = dff('test/delete_filename_length', True)
+        set_delete_shorter(False)
+        set_trial_delete(True)
+        self.assertRegex (response, 'deleted ... test.delete_filename_length.bbbb.txt')
+        self.assertRegex (response, 'deleted ... test.delete_filename_length.cc.txt')
+        self.assertRegex (response, 'aaaaaa.txt ... deleted')
+        self.assertRegex (response, 'deleted ... test.delete_filename_length.ee.txt')
+        self.assertRegex (response, 'aaaaaa.txt ... already deleted')
+        
 
-#ToDo:
-#  * optimisation - full file already
-#  * probably a logic error - where the first 4096 bytes of the files are identical but we don't find duplicate since we compare against the wrong snip file...
-
-# %time% in the following is evaluated at submit
-# echo %time% > g:\down\d.txt & dff --path d:\ >> g:\down\d.txt & echo %time% >> g:\down\d.txt
 
 if __name__ == '__main__':
     one_time_setup()
