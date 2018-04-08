@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-version="0.5.0"
+version="0.6.0"
 
 import sys, argparse, math, hashlib, os, stat, time
 
@@ -49,40 +49,40 @@ class fileFullHash:
         self.full.clear()
 
     def search_duplicate(self, snip_file_path, current_file_path):
-        current_file_hash = self.md5_full(current_file_path)
+        current_file_hash = self.hash_full(current_file_path)
         if (current_file_hash in self.full):
             return self.full[current_file_hash]
 
-        snip_file_hash = self.md5_full(snip_file_path)
+        snip_file_hash = self.hash_full(snip_file_path)
         self.full[snip_file_hash] = snip_file_path
         if (current_file_hash in self.full):
             return self.full[current_file_hash]
 
         self.full[current_file_hash] = current_file_path
         return False
-                
-    
-    def md5_full(self, file_path):
+
+    def hash_full(self, file_path):
         global megabytes_scanned
-        verbose('...calculating md5 full of ' + file_path)
-        hash_md5 = hashlib.md5()
+        verbose('...calculating full hash of ' + file_path)
+        file_hash = hashlib.blake2b()
         with open(file_path, "rb") as f:
             for chunk in iter(lambda: f.read(BYTES_TO_SCAN), b""):
-                hash_md5.update(chunk)
+                file_hash.update(chunk)
                 megabytes_scanned += SCAN_SIZE_MB
-        return hash_md5.hexdigest()
+        return file_hash.hexdigest()
 
-def md5_snip(file_path):
+
+def hash_snip(file_path):
     global megabytes_scanned
-    verbose('...calculating md5 snippet of ' + file_path)
-    hash_md5 = hashlib.md5()
+    verbose('...calculating hash snippet of ' + file_path)
+    snip_hash = hashlib.blake2b()
     try:
         with open(file_path, "rb") as f:
             for chunk in iter(lambda: f.read(BYTES_TO_SCAN), b""):
-                hash_md5.update(chunk)
+                snip_hash.update(chunk)
                 f.close()
                 megabytes_scanned += SCAN_SIZE_MB
-                return hash_md5.hexdigest()
+                return snip_hash.hexdigest()
     except PermissionError:
         output ('PermissionError: '+file_path+'\n')
         return 'PermissionError:'+file_path
@@ -121,7 +121,7 @@ def dff(path, delete_duplicates=False):
             file_count += 1
             current_file_path = os.path.join(root,file_name)
             verbose('Processing file ' + current_file_path)
-            current_file_snip_hash = md5_snip(current_file_path)
+            current_file_snip_hash = hash_snip(current_file_path)
             if (current_file_snip_hash in snip):
                 dupe_file_path = full_hash.search_duplicate(snip[current_file_snip_hash], current_file_path)
                 if (dupe_file_path):

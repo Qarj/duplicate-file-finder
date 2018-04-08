@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-version="0.5.0"
+version="0.6.0"
 
 import unittest, shutil, os, stat
 from stat import S_IREAD, S_IRGRP, S_IROTH
@@ -32,7 +32,7 @@ class Testdff(unittest.TestCase):
 
     def test_find_small_file_duplicate(self):
         response = dff('test/one_small_duplicate')
-        self.assertRegex (response, 'calculating md5 snippet')
+        self.assertRegex (response, 'calculating hash snippet')
         self.assertRegex (response, 'bbb.txt\n is dupe of test.one_small_duplicate.aaa.txt')
 
     def test_find_two_small_file_duplicates(self):
@@ -44,7 +44,7 @@ class Testdff(unittest.TestCase):
     def test_find_large_file_duplicate(self):
         response = dff('test/one_large_duplicate')
         self.assertRegex (response, 'big bbb.txt\n is dupe of test.one_large_duplicate.big aaa.txt')
-        self.assertRegex (response, 'calculating md5 full')
+        self.assertRegex (response, 'calculating full hash')
         self.assertNotRegex (response, 'big aaa.txt\n is dupe')
 
     def test_find_two_large_file_duplicates(self):
