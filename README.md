@@ -25,6 +25,14 @@ Really delete them - carefull !!! - deletes read only files too:
 dff --path test/duplicate_across_folders --delete
 ```
 
+Delete the file with the shorter file name rather than always the file currently being processed:
+```
+dff --path test/duplicate_across_folders --delete --shorter
+```
+When using this option, some multiple duplicates of a file might be missed. In that case you'll need to run
+the script again.
+
+
 ## Run the unit tests
 
 ```

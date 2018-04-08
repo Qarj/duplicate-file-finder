@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-version="0.3.0"
+version="0.4.0"
 
 import unittest, shutil, os, stat
 from stat import S_IREAD, S_IRGRP, S_IROTH
-from dff import dff, clear_globals_for_unittests, set_verbose_output, set_output_immediately, set_trial_delete
+from dff import dff, clear_globals_for_unittests, set_verbose_output, set_output_immediately, set_trial_delete, set_delete_shorter
 
 # self.assertTrue(exp)
 # self.assertEqual(a,b)
@@ -15,6 +15,7 @@ def one_time_setup():
     set_verbose_output(True)
     set_output_immediately(False)
     set_trial_delete(True)
+    set_delete_shorter(False)
 
 class Testdff(unittest.TestCase):
 
@@ -101,6 +102,7 @@ class Testdff(unittest.TestCase):
             shutil.copytree('test/one_small_duplicate', 'test/delete_unit_test')
         except PermissionError:
             print('Got some really wierd permission error - try again')
+            shutil.copytree('test/one_small_duplicate', 'test/delete_unit_test')
         os.chmod('test/delete_unit_test/bbb.txt', S_IREAD|S_IRGRP|S_IROTH)
         set_trial_delete(False)
         response = dff('test/delete_unit_test', True)

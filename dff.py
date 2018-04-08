@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-version="0.3.0"
+version="0.4.0"
 
 import sys, argparse, math, hashlib, os, stat, time
 
@@ -7,6 +7,7 @@ import sys, argparse, math, hashlib, os, stat, time
 verbose_output = None
 output_immediately = None
 trial_delete = None
+delete_shorter = None
 
 # Globals
 stdout = ''
@@ -34,6 +35,10 @@ def set_output_immediately(b):
 def set_trial_delete(b):
     global trial_delete
     trial_delete = b
+
+def set_delete_shorter(b):
+    global delete_shorter
+    delete_shorter = b
 
 class fileFullHash:
 
@@ -99,7 +104,7 @@ def output(out):
     else:
         stdout += out + "\n"
 
-def dff(path, delete=False):
+def dff(path, delete_duplicates=False):
     output('\n' + time.strftime('%X : ') +  'Finding duplicate files at ' + path + '\n')
     start_time = time.time()
 
@@ -113,29 +118,52 @@ def dff(path, delete=False):
         files.sort()
         for file_name in files:
             file_count += 1
-            file_relative_path = os.path.join(root,file_name)
-            verbose('Processing file ' + file_relative_path)
-            current_file_snip_hash = md5_snip(file_relative_path)
+            current_file_path = os.path.join(root,file_name)
+            verbose('Processing file ' + current_file_path)
+            current_file_snip_hash = md5_snip(current_file_path)
             if (current_file_snip_hash in snip):
-                dupe_file_path = full_hash.search_duplicate(snip[current_file_snip_hash], file_relative_path)
+                dupe_file_path = full_hash.search_duplicate(snip[current_file_snip_hash], current_file_path)
                 if (dupe_file_path):
-                    if (delete):
-                        delete_message = 'deleted ... '
-                        if (not trial_delete):
-                            os.chmod(file_relative_path, stat.S_IWRITE)
-                            os.remove(file_relative_path)
-                    else:
-                        delete_message = '            '
-                    output(delete_message + file_relative_path + '\n is dupe of ' + dupe_file_path + '\n')
+                    display_duplicate_and_optionally_delete(dupe_file_path, current_file_path, delete_duplicates)
                     duplicate_count += 1
                 else:
                     verbose('...first 4096 bytes are the same, but files are different')
             else:
-                snip[current_file_snip_hash] = file_relative_path
+                snip[current_file_snip_hash] = current_file_path
 
     output('\n' + time.strftime('%X : ') + str(duplicate_count) + ' duplicate files found, ' + str(file_count) + ' files and ' + str(megabytes_scanned) + ' megabytes scanned in ' + str(round(time.time()-start_time, 3)) + ' seconds')
 
     return stdout
+
+def display_duplicate_and_optionally_delete(previously_hashed_file_path, current_file_path, delete_duplicates):
+
+    current_file_message = '            '
+    previously_hashed_file_message = ''
+    if (delete_duplicates):
+        previously_hashed_file_message, current_file_message = delete_duplicate_and_get_message(previously_hashed_file_path, current_file_path)
+
+    output(current_file_message + current_file_path + '\n is dupe of ' + previously_hashed_file_path + previously_hashed_file_message + '\n')
+
+def delete_duplicate_and_get_message(previously_hashed_file_path, current_file_path):
+
+    delete_file_path = current_file_path
+    previously_hashed_file_message = ''
+    current_file_message = 'deleted ... '
+
+    if (delete_shorter):
+        if ( len(os.path.basename(previously_hashed_file_path)) < len(os.path.basename(current_file_path)) ):
+            delete_file_path = previously_hashed_file_path
+            previously_hashed_file_message = ' ... deleted'
+            current_file_message = ''
+
+    if (not trial_delete):
+        try:
+            os.chmod(delete_file_path, stat.S_IWRITE)
+            os.remove(delete_file_path)
+        except FileNotFoundError:
+            previously_hashed_file_message = ' ... already deleted'
+
+    return previously_hashed_file_message, current_file_message
 
 parser = argparse.ArgumentParser(description='Find duplicate files in target path and sub folders.')
 parser.add_argument('--path', dest='path', required=False, action='store', help='Target path')
@@ -144,11 +172,13 @@ parser.add_argument('--verbose', action='store_true', dest='verbose', default=Fa
 parser.add_argument('--delayed', action='store_true', dest='output_delayed', default=False, help='Will display stdout at end instead of immediately')
 parser.add_argument('--delete', action='store_true', dest='delete', default=False, help='Deletes any duplicate files found')
 parser.add_argument('--trial', action='store_true', dest='trial_delete', default=False, help='Displays files to delete without actually deleting them - use with --delete')
+parser.add_argument('--shorter', action='store_true', dest='delete_shorter', default=False, help='Deletes file with shorter name rather than always current file - use with --delete')
 
 args = parser.parse_args()
 set_verbose_output(args.verbose)
 set_output_immediately(not args.output_delayed)
 set_trial_delete(args.trial_delete)
+set_delete_shorter(args.delete_shorter)
 
 if (args.path):
     dff(args.path, args.delete)
