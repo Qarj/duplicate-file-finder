@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.6
 version="0.6.0"
 
 import sys, argparse, math, hashlib, os, stat, time
