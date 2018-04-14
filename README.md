@@ -20,7 +20,7 @@ Pretend to delete dupes:
 dff --path test/duplicate_across_folders --delete --trial
 ```
 
-Really delete them - carefull !!! - deletes read only files too:
+Really delete them - careful !!! - deletes read only files too:
 ```
 dff --path test/duplicate_across_folders --delete
 ```
