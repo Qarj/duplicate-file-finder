@@ -1,4 +1,4 @@
-# duplicate-file-finder 0.6.0
+# duplicate-file-finder 0.7.0
 
 Very quickly find files with duplicate content, and optionally delete duplicates.
 

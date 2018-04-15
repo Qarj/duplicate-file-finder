@@ -1,5 +1,5 @@
 #!/usr/bin/env python3.6
-version="0.6.0"
+version="0.7.0"
 
 import sys, argparse, math, hashlib, os, stat, time
 
@@ -95,15 +95,20 @@ def verbose(out):
 def output(out):
     global stdout
     if (output_immediately):
-        try:
-            print(out, flush=True)
-        except UnicodeEncodeError:
-            try:
-                print(out.encode('utf8').decode(sys.stdout.encoding))
-            except UnicodeDecodeError:
-                print('Sorry Unicode error...')
+        unicode_output(out)
     else:
         stdout += out + "\n"
+
+def unicode_output(out):
+    # when printing directly to the windows console stdout, unicode errors tend to be ignored automatically
+    # if the user redirects stdout to a file, unicode errors can occurr - this code outputs the best it can and flags errors in the output
+    try:
+        print(out, flush=True)
+    except UnicodeEncodeError:
+        try:
+            print(out.encode('utf8').decode(sys.stdout.encoding))
+        except UnicodeDecodeError:
+            print(out.encode('utf8').decode(sys.stdout.encoding, errors='ignore')  + ' <-- UnicodeDecodeError')
 
 def dff(path, delete_duplicates=False):
     output('\n' + time.strftime('%X : ') +  'Finding duplicate files at ' + path + '\n')
@@ -190,8 +195,5 @@ if (args.path):
     dff(args.path, args.delete)
     if (not output_immediately):
         print('\nResults...\n')
-        try:
-            print(stdout)
-        except UnicodeEncodeError:
-            print(stdout.encode('utf8').decode(sys.stdout.encoding))
+        unicode_output(stdout)
     sys.exit()

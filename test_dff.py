@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-version="0.6.0"
+version="0.7.0"
 
 import unittest, shutil, os, stat
 from stat import S_IREAD, S_IRGRP, S_IROTH
