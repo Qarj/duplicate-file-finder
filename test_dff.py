@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-version="0.7.0"
+version="0.8.0"
 
 import unittest, shutil, os, stat
 from stat import S_IREAD, S_IRGRP, S_IROTH
@@ -28,7 +28,7 @@ class Testdff(unittest.TestCase):
 
     def test_verbose_output_enabled(self):
         response = dff('test/one_file')
-        self.assertRegex (response, 'Processing file')
+        self.assertRegex (response, 'Checking size of file')
 
     def test_find_small_file_duplicate(self):
         response = dff('test/one_small_duplicate')
@@ -135,6 +135,28 @@ class Testdff(unittest.TestCase):
         self.assertRegex (response, 'deleted ... test.delete_filename_length.ee.txt')
         self.assertRegex (response, 'aaaaaa.txt ... already deleted')
         self.assertRegex (response, 'failed to delete 1 duplicates - rerun script')
+
+    def test_do_not_process_file_of_unique_byte_size(self):
+        response = dff('test/different_file_sizes')
+        self.assertNotRegex (response, 'Processing file')
+
+    def test_files_with_non_unique_file_size_added_to_process_list(self):
+        response = dff('test/one_large_almost_duplicate')
+        self.assertRegex (response, 'big bbb.txt added to process list')
+        self.assertRegex (response, 'big aaa.txt added to process list')
+        self.assertRegex (response, 'has non unique')
+
+    def test_known_duplicates_not_added_to_list_multiple_times(self):
+        response = dff('test/two_small_duplicates')
+        self.assertRegex (response, 'aaa.txt is a known size duplicate')
+        self.assertRegex (response, 'aaa.txt added to process list')
+        self.assertRegex (response, 'bbb.txt added to process list')
+        self.assertRegex (response, 'ccc.txt added to process list')
+
+    def test_ignore_zero_byte_files(self):
+        response = dff('test/two_zero_byte_files')
+        self.assertNotRegex (response, 'Processing file')
+        self.assertNotRegex (response, 'is dupe of')
 
 
 if __name__ == '__main__':

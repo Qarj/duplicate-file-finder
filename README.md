@@ -1,12 +1,17 @@
-# duplicate-file-finder 0.7.0
+# duplicate-file-finder 0.8.0
 
 Very quickly find files with duplicate content, and optionally delete duplicates.
 
-This Python 3 script computes the Blake2 64 byte hash of the first 4096 bytes of a file (NTFS default sector size) and stores it.
+This Python 3 script first checks all file sizes at the target path tree.
+Files are added to a list where the file size is common with one or more other files.
+
+Then the script computes the Blake2 64 byte hash of the first 4096 bytes of a file (NTFS default sector size) and stores it.
 
 Only if another file is found with the same Blake2 hash snippet, the full Blake2 of both files is computed to confirm duplicate.
 
 This double Blake2 compute strategy makes it extremely unlikely that two files will be declared identical when they are not.
+
+Zero byte files are ignored.
 
 ## Usage
 

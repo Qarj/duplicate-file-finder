@@ -1,5 +1,5 @@
 #!/usr/bin/env python3.6
-version="0.7.0"
+version="0.8.0"
 
 import sys, argparse, math, hashlib, os, stat, time
 
@@ -114,28 +114,31 @@ def dff(path, delete_duplicates=False):
     output('\n' + time.strftime('%X : ') +  'Finding duplicate files at ' + path + '\n')
     start_time = time.time()
 
+    sizes = fileSizes()
+    sizes.find_files_with_duplicate_file_size(path)
+
     snip = dict()
     full_hash = fileFullHash()
 
     duplicate_count = 0
     file_count = 0
 
-    for root, dirs, files in os.walk(path):
-        files.sort()
-        for file_name in files:
-            file_count += 1
-            current_file_path = os.path.join(root,file_name)
-            verbose('Processing file ' + current_file_path)
-            current_file_snip_hash = hash_snip(current_file_path)
-            if (current_file_snip_hash in snip):
-                dupe_file_path = full_hash.search_duplicate(snip[current_file_snip_hash], current_file_path)
-                if (dupe_file_path):
-                    display_duplicate_and_optionally_delete(dupe_file_path, current_file_path, delete_duplicates)
-                    duplicate_count += 1
-                else:
-                    verbose('...first 4096 bytes are the same, but files are different')
+#    for root, dirs, files in os.walk(path):
+#        files.sort()
+    for current_file_path in sizes.files_list:
+        file_count += 1
+        #current_file_path = os.path.join(root,file_name)
+        verbose('Processing file ' + current_file_path)
+        current_file_snip_hash = hash_snip(current_file_path)
+        if (current_file_snip_hash in snip):
+            dupe_file_path = full_hash.search_duplicate(snip[current_file_snip_hash], current_file_path)
+            if (dupe_file_path):
+                display_duplicate_and_optionally_delete(dupe_file_path, current_file_path, delete_duplicates)
+                duplicate_count += 1
             else:
-                snip[current_file_snip_hash] = current_file_path
+                verbose('...first 4096 bytes are the same, but files are different')
+        else:
+            snip[current_file_snip_hash] = current_file_path
 
     output('\n' + time.strftime('%X : ') + str(duplicate_count) + ' duplicate files found, ' + str(file_count) + ' files and ' + str(megabytes_scanned) + ' megabytes scanned in ' + str(round(time.time()-start_time, 3)) + ' seconds')
 
@@ -143,6 +146,48 @@ def dff(path, delete_duplicates=False):
         output('\n' + 'failed to delete ' + str(failed_delete_count) + ' duplicates - rerun script')
 
     return stdout
+
+class fileSizes:
+
+    sizes = dict()
+    files_to_process = dict()
+    files_list = [] # want to process files in os.walk order, not some unknown order
+
+    def __init__(self):
+        self.sizes.clear()
+        self.files_to_process.clear()
+        self.files_list.clear()
+
+    def find_files_with_duplicate_file_size(self, path):
+        file_count = 0
+        for root, dirs, files in os.walk(path):
+            files.sort()
+            for file_name in files:
+                file_count += 1
+                current_file_path = os.path.join(root,file_name)
+                verbose('Checking size of file ' + current_file_path)
+                file_size = os.path.getsize(current_file_path)
+                if (file_size > 0):
+                    self.add_file(current_file_path, file_size)
+
+    def add_file(self, current_file_path, size):
+        if size in self.sizes:
+            verbose(current_file_path + ' has non unique file size [' + str(size) + ' bytes]')
+            self.add_original_file_to_process_list(self.sizes[size])
+            self.add_file_to_process_list(current_file_path)
+        else:
+            self.sizes[size] = current_file_path
+
+    def add_original_file_to_process_list(self, original_file_path):
+        if original_file_path in self.files_to_process:
+            verbose(original_file_path + ' is a known size duplicate')
+            return
+        self.add_file_to_process_list(original_file_path)  
+
+    def add_file_to_process_list(self, file_path):
+        self.files_to_process[file_path] = True
+        self.files_list.append(file_path)
+        verbose(file_path + ' added to process list')
 
 def display_duplicate_and_optionally_delete(previously_hashed_file_path, current_file_path, delete_duplicates):
 
