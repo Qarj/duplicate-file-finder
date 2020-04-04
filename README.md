@@ -1,4 +1,4 @@
-# duplicate-file-finder 0.8.1
+# duplicate-file-finder 0.8.2
 
 Very quickly find files with duplicate content, and optionally delete duplicates.
 
@@ -55,12 +55,6 @@ the script again. A message at script completion will tell you if this is the ca
 This option is recommended for where you have photos and have taken the trouble to give a meaningful description
 to the photo content - you'll want to keep the longer file name rather than just the basic automatically given name.
 
-## Run the unit tests
-
-```
-test_dff.py
-```
-
 ## Debian / Ubuntu Installation
 
 ```
@@ -100,3 +94,19 @@ dff.py --help
 ## Windows Installation
 
 Copy `dff.py` to `C:\Windows` then you can run it from anywhere.
+
+## Run the unit tests
+
+Unit tests must be run with the project folder as the current folder.
+
+Linux
+
+```
+./test_dff.py
+```
+
+Windows
+
+```
+test_dff.py
+```
