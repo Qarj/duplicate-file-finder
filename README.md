@@ -13,32 +13,40 @@ This double Blake2 compute strategy makes it extremely unlikely that two files w
 
 Zero byte files are ignored.
 
+All files in the specified path, and all subfolders, are checked.
+
 ## Usage
 
-These examples assume you are using Windows and Python 3 is added to path.
+These examples assume `dff.py` has been added to your `PATH` - see below for installation instructions.
 
 List duplicates:
 
 ```
-dff --path test/one_small_duplicate
+dff.py --path test/one_small_duplicate
 ```
 
-Pretend to delete dupes:
+Or to search from current folder:
 
 ```
-dff --path test/duplicate_across_folders --delete --trial
+dff.py --path .
 ```
 
-Really delete them - careful !!! - deletes read only files too:
+Pretend to delete dupes, does not delete anything:
 
 ```
-dff --path test/duplicate_across_folders --delete
+dff.py --path test/duplicate_across_folders --delete --trial
+```
+
+Really delete duplicates - careful !!! - deletes read only files too:
+
+```
+dff.py --path test/duplicate_across_folders --delete
 ```
 
 Delete the file with the shorter file name rather than always the file currently being processed:
 
 ```
-dff --path test/duplicate_across_folders --delete --shorter
+dff.py --path test/duplicate_across_folders --delete --shorter
 ```
 
 When using this option, some multiple duplicates of a file might be missed. In that case you'll need to run
@@ -53,23 +61,42 @@ to the photo content - you'll want to keep the longer file name rather than just
 test_dff.py
 ```
 
-## Linux notes
-
-One time setup
+## Debian / Ubuntu Installation
 
 ```
-chmod +x dff.py
-chmod +x test_dff.py
+cd /usr/local/bin
+sudo git clone https://github.com/Qarj/duplicate-file-finder
+cd duplicate-file-finder
+sudo find . -type d -exec chmod a+rwx {} \;
+sudo find . -type f -exec chmod a+rw {} \;
+sudo chmod +x dff.py
+sudo chmod +x test_dff.py
 ```
 
-Two options for running
+Now add to user path
 
 ```
-python3 dff.py --help
+gedit ~/.bashrc
 ```
 
-or
+Add this line to the bottom and save
 
 ```
-./dff.py --help
+export PATH="$PATH:/usr/local/bin/duplicate-file-finder"
 ```
+
+Update path for current shell (or reboot!)
+
+```
+source ~/.bashrc
+```
+
+Now it will be possible to run it from anywhere
+
+```
+dff.py --help
+```
+
+## Windows Installation
+
+Copy `dff.py` to `C:\Windows` then you can run it from anywhere.
