@@ -5,7 +5,7 @@ import shutil
 import unittest
 from dff import dff, clear_globals_for_unittests, set_verbose_output, set_output_immediately, set_trial_delete, set_delete_shorter
 from stat import S_IREAD, S_IRGRP, S_IROTH
-version = "0.8.2"
+version = "0.9.0"
 
 
 # self.assertTrue(exp)

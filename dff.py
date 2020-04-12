@@ -6,7 +6,7 @@ import hashlib
 import math
 import argparse
 import sys
-version = "0.8.2"
+version = "0.9.0"
 
 
 # Flags
@@ -141,11 +141,8 @@ def dff(path, delete_duplicates=False):
     duplicate_count = 0
     file_count = 0
 
-#    for root, dirs, files in os.walk(path):
-#        files.sort()
     for current_file_path in sizes.files_list:
         file_count += 1
-        #current_file_path = os.path.join(root,file_name)
         verbose('Processing file ' + current_file_path)
         current_file_snip_hash = hash_snip(current_file_path)
         if (current_file_snip_hash in snip):
@@ -185,7 +182,7 @@ class fileSizes:
 
     def find_files_with_duplicate_file_size(self, path):
         self.file_count = 0
-        for root, dirs, files in os.walk(path):
+        for root, dirs, files in sorted(os.walk(path)):
             files.sort()
             for file_name in files:
                 self.file_count += 1
