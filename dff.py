@@ -6,7 +6,7 @@ import hashlib
 import math
 import argparse
 import sys
-version = "0.8.1"
+version = "0.8.2"
 
 
 # Flags
@@ -161,7 +161,8 @@ def dff(path, delete_duplicates=False):
             snip[current_file_snip_hash] = current_file_path
 
     output('\n' + time.strftime('%X : ') + str(duplicate_count) + ' duplicate files found, ' + str(file_count) +
-           ' files and ' + str(megabytes_scanned) + ' megabytes scanned in ' + str(round(time.time()-start_time, 3)) + ' seconds')
+           ' files and ' + str(megabytes_scanned) + ' megabytes scanned in ' + str(round(time.time()-start_time, 3)) + ' seconds, ' +
+           str(sizes.file_count) + ' files assessed')
 
     if (failed_delete_count):
         output('\n' + 'failed to delete ' +
@@ -175,6 +176,7 @@ class fileSizes:
     sizes = dict()
     files_to_process = dict()
     files_list = []  # want to process files in os.walk order, not some unknown order
+    file_count = 0
 
     def __init__(self):
         self.sizes.clear()
@@ -182,11 +184,11 @@ class fileSizes:
         self.files_list.clear()
 
     def find_files_with_duplicate_file_size(self, path):
-        file_count = 0
+        self.file_count = 0
         for root, dirs, files in os.walk(path):
             files.sort()
             for file_name in files:
-                file_count += 1
+                self.file_count += 1
                 current_file_path = os.path.join(root, file_name)
                 verbose('Checking size of file ' + current_file_path)
                 file_size = os.path.getsize(current_file_path)
