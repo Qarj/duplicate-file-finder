@@ -63,7 +63,7 @@ test_dff.py
 
 ## Debian / Ubuntu Installation
 
-```
+```bash
 cd /usr/local/bin
 sudo git clone https://github.com/Qarj/duplicate-file-finder
 cd duplicate-file-finder
@@ -75,26 +75,40 @@ sudo chmod +x test_dff.py
 
 Now add to user path
 
-```
+```bash
 gedit ~/.bashrc
 ```
 
 Add this line to the bottom and save
 
-```
+```bash
 export PATH="$PATH:/usr/local/bin/duplicate-file-finder"
 ```
 
 Update path for current shell (or reboot!)
 
-```
+```bash
 source ~/.bashrc
 ```
 
 Now it will be possible to run it from anywhere
 
-```
+```bash
 dff.py --help
+```
+
+## Debian / Ubuntu Quick Installation
+
+Copy the contents of `dff.py` to the clipboard then
+
+```bash
+sudo nano /usr/local/bin/dff.py
+```
+
+SHIFT-INSERT to paste the text, save and exit then
+
+```bash
+sudo chmod +x /usr/local/bin/dff.py
 ```
 
 ## Windows Installation
