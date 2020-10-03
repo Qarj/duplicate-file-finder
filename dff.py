@@ -6,7 +6,7 @@ import hashlib
 import math
 import argparse
 import sys
-version = "0.9.0"
+version = "0.10.0"
 
 
 # Flags
@@ -182,13 +182,16 @@ class fileSizes:
 
     def find_files_with_duplicate_file_size(self, path):
         self.file_count = 0
-        for root, dirs, files in sorted(os.walk(path)):
+        for root, _, files in sorted(os.walk(path)):
             files.sort()
             for file_name in files:
                 self.file_count += 1
                 current_file_path = os.path.join(root, file_name)
                 verbose('Checking size of file ' + current_file_path)
-                file_size = os.path.getsize(current_file_path)
+                try:
+                    file_size = os.path.getsize(current_file_path)
+                except FileNotFoundError: # in case of symlink to nowhere
+                    continue
                 if (file_size > 0):
                     self.add_file(current_file_path, file_size)
 

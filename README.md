@@ -1,4 +1,4 @@
-# duplicate-file-finder 0.9.0
+# duplicate-file-finder 0.10.0
 
 Very quickly find files with duplicate content, and optionally delete duplicates.
 
@@ -11,9 +11,11 @@ Only if another file is found with the same Blake2 hash snippet, the full Blake2
 
 This double Blake2 compute strategy makes it extremely unlikely that two files will be declared identical when they are not.
 
-Zero byte files are ignored.
+Zero byte files are ignored, but counted.
 
-All files in the specified path, and all subfolders, are checked.
+File symlinks to nowhere are ignored, but counted.
+
+All files in the specified path, and all subfolders, are evaluated. Folder symlinks are not followed.
 
 ## Usage
 
