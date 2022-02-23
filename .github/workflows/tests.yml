@@ -1,0 +1,24 @@
+---
+name: Tests
+
+on: push
+
+jobs:
+    test:
+        name: Tests
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+
+            - name: Set up Python
+              uses: actions/setup-python@v2
+
+            - name: Python version investigation
+              run: python --version
+
+            - name: OS investigation
+              run: uname -a
+
+            - name: Run the tests
+              run: python test_dff.py

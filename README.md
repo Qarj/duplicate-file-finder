@@ -1,5 +1,8 @@
 # duplicate-file-finder 0.10.0
 
+[![GitHub Super-Linter](https://github.com/Qarj/duplicate-file-finder/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/marketplace/actions/super-linter)
+![Tests](https://github.com/Qarj/duplicate-file-finder/workflows/Tests/badge.svg)
+
 Very quickly find files with duplicate content, and optionally delete duplicates.
 
 This Python 3 script first checks all file sizes at the target path tree.
@@ -19,35 +22,35 @@ All files in the specified path, and all subfolders, are evaluated. Folder symli
 
 ## Usage
 
-These examples assume `dff.py` has been added to your `PATH` - see below for installation instructions.
+These examples assume `dff` has been added to your `PATH` - see below for installation instructions.
 
 List duplicates:
 
-```
-dff.py --path test/one_small_duplicate
+```sh
+dff --path test/one_small_duplicate
 ```
 
 Or to search from current folder:
 
-```
-dff.py --path .
+```sh
+dff --path .
 ```
 
 Pretend to delete dupes, does not delete anything:
 
-```
-dff.py --path test/duplicate_across_folders --delete --trial
+```sh
+dff --path test/duplicate_across_folders --delete --trial
 ```
 
 Really delete duplicates - careful !!! - deletes read only files too:
 
-```
+```sh
 dff.py --path test/duplicate_across_folders --delete
 ```
 
 Delete the file with the shorter file name rather than always the file currently being processed:
 
-```
+```sh
 dff.py --path test/duplicate_across_folders --delete --shorter
 ```
 
@@ -59,57 +62,25 @@ to the photo content - you'll want to keep the longer file name rather than just
 
 ## Debian / Ubuntu Installation
 
-```bash
-cd /usr/local/bin
+Clone project then add to path using symbolic link
+
+```sh
+cd ~
 sudo git clone https://github.com/Qarj/duplicate-file-finder
 cd duplicate-file-finder
-sudo find . -type d -exec chmod a+rwx {} \;
-sudo find . -type f -exec chmod a+rw {} \;
-sudo chmod +x dff.py
-sudo chmod +x test_dff.py
+chmod +x dff.py
+sudo ln -sf $HOME/git/duplicate-file-finder/dff.py /usr/local/bin/dff
 ```
 
-Now add to user path
+Check working
 
-```bash
-gedit ~/.bashrc
-```
-
-Add this line to the bottom and save
-
-```bash
-export PATH="$PATH:/usr/local/bin/duplicate-file-finder"
-```
-
-Update path for current shell (or reboot!)
-
-```bash
-source ~/.bashrc
-```
-
-Now it will be possible to run it from anywhere
-
-```bash
-dff.py --help
-```
-
-## Debian / Ubuntu Quick Installation
-
-Copy the contents of `dff.py` to the clipboard then
-
-```bash
-sudo nano /usr/local/bin/dff.py
-```
-
-SHIFT-INSERT to paste the text, save and exit then
-
-```bash
-sudo chmod +x /usr/local/bin/dff.py
+```sh
+dff --help
 ```
 
 ## Windows Installation
 
-Copy `dff.py` to `C:\Windows` then you can run it from anywhere.
+Copy `dff.py` to `C:\Windows` then you can run it from anywhere as `dff.py`.
 
 ## Run the unit tests
 
@@ -118,7 +89,7 @@ Unit tests must be run with the project folder as the current folder.
 Linux
 
 ```
-./test_dff.py
+python test_dff.py
 ```
 
 Windows
