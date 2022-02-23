@@ -3,6 +3,9 @@ import os
 import shutil
 import stat
 import unittest
+
+from stat import S_IREAD, S_IRGRP, S_IROTH
+
 from dff import (
     clear_globals_for_unittests,
     dff,
@@ -11,7 +14,6 @@ from dff import (
     set_trial_delete,
     set_verbose_output,
 )
-from stat import S_IREAD, S_IRGRP, S_IROTH
 
 version = "0.10.0"
 
@@ -126,11 +128,11 @@ class Testdff(unittest.TestCase):
 
     def test_show_start_and_end_times(self):
         response = dff("test/duplicate_across_folders")
-        self.assertRegex(response, "\d{2}:\d{2}:\d{2}")
+        self.assertRegex(response, r"\d{2}:\d{2}:\d{2}")
 
     def test_show_run_time_in_seconds(self):
         response = dff("test/duplicate_across_folders")
-        self.assertRegex(response, "in \d+\.\d+ seconds")
+        self.assertRegex(response, r"in \d+\.\d+ seconds")
 
     def test_delete_file_with_longest_name(self):
         shutil.rmtree("test/delete_filename_length", ignore_errors=True)

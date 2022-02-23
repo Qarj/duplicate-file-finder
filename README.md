@@ -48,7 +48,7 @@ Really delete duplicates - careful !!! - deletes read only files too:
 dff.py --path test/duplicate_across_folders --delete
 ```
 
-Delete the file with the shorter file name rather than always the file currently being processed:
+Delete the file with the shorter filename rather than always the file currently being processed:
 
 ```sh
 dff.py --path test/duplicate_across_folders --delete --shorter
@@ -58,7 +58,7 @@ When using this option, some multiple duplicates of a file might be missed. In t
 the script again. A message at script completion will tell you if this is the case.
 
 This option is recommended for where you have photos and have taken the trouble to give a meaningful description
-to the photo content - you'll want to keep the longer file name rather than just the basic automatically given name.
+to the photo content - you'll want to keep the longer filename rather than just the basic automatically given name.
 
 ## Debian / Ubuntu Installation
 
@@ -88,12 +88,12 @@ Unit tests must be run with the project folder as the current folder.
 
 Linux
 
-```
+```sh
 python test_dff.py
 ```
 
 Windows
 
-```
+```sh
 test_dff.py
 ```

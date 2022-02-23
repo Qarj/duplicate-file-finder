@@ -55,7 +55,7 @@ def set_delete_shorter(b):
 
 class fileFullHash:
 
-    full = dict()
+    full: dict = {}
 
     def __init__(self):
         self.full.clear()
@@ -177,9 +177,9 @@ def dff(path, delete_duplicates=False):
 
 class fileSizes:
 
-    sizes = dict()
-    files_to_process = dict()
-    files_list = []  # want to process files in os.walk order, not some unknown order
+    sizes: dict = {}
+    files_to_process: dict = {}
+    files_list: list = []  # want to process files in os.walk order, not some unknown order
     file_count = 0
 
     def __init__(self):
